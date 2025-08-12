@@ -1,171 +1,159 @@
 /* style.css */
 
-:root {
-  --kleur-turquoise: #40c4ff;
-  --kleur-blauw: #0077cc;
-  --kleur-lichtgrijs: #f0f4f8;
-  --kleur-donkergrijs: #333;
-  --kleur-wit: #fff;
-  --radius: 6px;
-  --transition: 0.3s ease;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--kleur-donkergrijs);
-  background-color: var(--kleur-lichtgrijs);
+/* Basis reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
 }
 
+/* Body en algemene layout */
 body {
-  margin: 0;
-  padding: 0 1rem 3rem 1rem;
+  background: #f8f9fa;
+  color: #333;
+  line-height: 1.5;
+  padding: 1rem;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 header {
+  margin-bottom: 2rem;
   text-align: center;
-  padding: 1.5rem 1rem;
-  margin-bottom: 1rem;
-  background: var(--kleur-turquoise);
-  color: white;
-  border-radius: 0 0 var(--radius) var(--radius);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-h1 {
-  margin: 0;
-  font-weight: 700;
-}
-
-h2 {
-  margin-top: 0;
+header h1 {
   margin-bottom: 0.5rem;
-  color: var(--kleur-blauw);
+  color: #007BFF;
+}
+
+nav a {
+  color: #007BFF;
+  text-decoration: none;
+  margin: 0 0.5rem;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
 }
 
 main {
-  width: 100%;
-  max-width: 480px;
+  max-width: 600px;
+  margin: 0 auto;
   background: white;
-  border-radius: var(--radius);
   padding: 1.5rem;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-button {
+/* Knoppen */
+button, .btn {
   cursor: pointer;
   border: none;
-  border-radius: var(--radius);
+  border-radius: 4px;
   padding: 0.5rem 1rem;
+  font-weight: bold;
   font-size: 1rem;
-  transition: background-color var(--transition);
-  font-weight: 600;
+  transition: background-color 0.3s ease;
 }
 
 .btn-primary {
-  background-color: var(--kleur-turquoise);
+  background-color: #007BFF;
   color: white;
 }
 
-.btn-primary:hover,
-.btn-primary:focus {
-  background-color: var(--kleur-blauw);
-  outline: none;
+.btn-primary:hover {
+  background-color: #0056b3;
 }
 
 .btn-secondary {
-  background-color: #ccc;
-  color: var(--kleur-donkergrijs);
+  background-color: #6c757d;
+  color: white;
 }
 
-.btn-secondary:hover,
-.btn-secondary:focus {
-  background-color: #aaa;
-  outline: none;
+.btn-secondary:hover {
+  background-color: #565e64;
 }
 
-#rooster-lijst {
+/* Lijsten */
+ul {
   list-style: none;
-  padding-left: 0;
   margin-top: 1rem;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ddd;
-  border-radius: var(--radius);
 }
 
-#rooster-lijst li {
-  padding: 0.7rem 1rem;
-  border-bottom: 1px solid #eee;
+li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ddd;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 }
 
-#rooster-lijst li:last-child {
-  border-bottom: none;
-}
-
-.verwijder-rooster {
-  background: transparent;
-  color: var(--kleur-blauw);
+/* Verwijder knop */
+button.verwijder-rooster, button.verwijder-log {
+  background: none;
+  color: red;
   font-size: 1.2rem;
-  line-height: 1;
-  padding: 0 0.3rem;
-  font-weight: 700;
+  font-weight: bold;
+  padding: 0;
+  margin-left: 1rem;
 }
 
-.verwijder-rooster:hover {
-  color: var(--kleur-turquoise);
+button.verwijder-rooster:hover, button.verwijder-log:hover {
+  color: darkred;
 }
 
+/* Dialog */
 .dialog {
   position: fixed;
-  top: 50%;
+  top: 30%;
   left: 50%;
-  width: 90%;
-  max-width: 400px;
+  transform: translate(-50%, -30%);
   background: white;
-  border-radius: var(--radius);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  padding: 1.5rem 2rem;
-  transform: translate(-50%, -50%);
+  border: 1px solid #ccc;
+  padding: 1.5rem;
+  box-shadow: 0 0 15px rgba(0,0,0,0.25);
   z-index: 1000;
+  width: 300px;
+  border-radius: 8px;
 }
 
 .hidden {
-  display: none !important;
+  display: none;
 }
 
+/* Form elementen */
 label {
   display: block;
   margin-bottom: 0.8rem;
-  font-weight: 600;
-  color: var(--kleur-blauw);
+  font-weight: bold;
 }
 
-input[type="date"],
-input[type="time"] {
+input[type="date"], select {
   width: 100%;
-  padding: 0.35rem 0.5rem;
+  padding: 0.4rem;
   font-size: 1rem;
-  border: 1px solid #bbb;
-  border-radius: var(--radius);
-  box-sizing: border-box;
-  margin-top: 0.25rem;
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-input[type="checkbox"] {
-  transform: scale(1.2);
-  margin-left: 0.3rem;
-  vertical-align: middle;
+/* Button in lijst (zoals "Markeer als voltooid") */
+ul#trainingsschema li button {
+  margin-left: 1rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.9rem;
 }
 
-@media (min-width: 600px) {
-  body {
-    padding: 2rem;
-  }
+/* Responsive */
+@media (max-width: 600px) {
   main {
-    padding: 2rem 3rem;
+    margin: 0 1rem;
+    padding: 1rem;
+  }
+
+  .dialog {
+    width: 90%;
   }
 }
