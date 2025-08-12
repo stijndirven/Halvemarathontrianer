@@ -102,6 +102,7 @@ function planTrainingen() {
 
 // --- Trainingsschema tonen ---
 function renderTrainingsschema() {
+  console.log('renderTrainingsschema is gestart');
   trainingsschemaEl.innerHTML = '';
 
   const trainingen = planTrainingen();
