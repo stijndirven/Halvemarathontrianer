@@ -1,72 +1,95 @@
-// Halve Marathon Coach v2 - app.js
+// app.js
 
-// --- Helpers ---
-function formatDate(date) {
-  return date.toISOString().slice(0, 10);
-}
-
-function parseTimeToMinutes(t) {
-  // "HH:MM" -> totaal minuten
-  const [h, m] = t.split(':').map(Number);
-  return h * 60 + m;
-}
-
-function minutesToTime(m) {
-  const h = Math.floor(m / 60);
-  const min = m % 60;
-  return `${h.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}`;
-}
-
-function isNachtdienst(werkdag) {
-  return werkdag.nachtdienst === true;
-}
-
-// --- Storage keys ---
+// Storage key
 const STORAGE_ROOSTER = 'hm_rooster_v2';
-const STORAGE_LOGS = 'hm_logs_v2';
-const STORAGE_SCHEMA = 'hm_schema_v2';
 
-// --- Init data ---
+// Data: laad rooster uit localStorage of start leeg
 let rooster = JSON.parse(localStorage.getItem(STORAGE_ROOSTER)) || [];
-let logs = JSON.parse(localStorage.getItem(STORAGE_LOGS)) || [];
-let schema = JSON.parse(localStorage.getItem(STORAGE_SCHEMA)) || generateInitialSchema();
 
-// --- Init ---
-document.addEventListener('DOMContentLoaded', () => {
-  renderKalender();
-  renderRoosterLijst();
-  renderSchema();
-  renderLogboek();
-  renderStatistieken();
-  setupRoosterDialog();
-  setupEvents();
-  registerServiceWorker();
+// DOM elementen
+const btnToevoegen = document.getElementById('toevoegen-rooster-dag');
+const dialog = document.getElementById('rooster-dialog');
+const btnCancel = document.getElementById('rooster-cancel');
+const form = document.getElementById('rooster-form');
+const roosterLijst = document.getElementById('rooster-lijst');
+
+function opslaanRooster() {
+  localStorage.setItem(STORAGE_ROOSTER, JSON.stringify(rooster));
+}
+
+function renderRoosterLijst() {
+  roosterLijst.innerHTML = '';
+
+  if (rooster.length === 0) {
+    const leegMsg = document.createElement('li');
+    leegMsg.textContent = 'Nog geen werkdagen toegevoegd.';
+    leegMsg.style.fontStyle = 'italic';
+    roosterLijst.appendChild(leegMsg);
+    return;
+  }
+
+  rooster.forEach((werkdag, index) => {
+    const li = document.createElement('li');
+
+    // Format: Datum + tijden + nachtdienst
+    const tekst = `${werkdag.datum} | ${werkdag.start} - ${werkdag.eind} ${werkdag.nachtdienst ? '(Nachtdienst)' : ''}`;
+    li.textContent = tekst;
+
+    // Verwijder knop
+    const btnVerwijder = document.createElement('button');
+    btnVerwijder.textContent = '×';
+    btnVerwijder.title = 'Werkdag verwijderen';
+    btnVerwijder.className = 'verwijder-rooster';
+    btnVerwijder.dataset.index = index;
+
+    btnVerwijder.addEventListener('click', () => {
+      rooster.splice(index, 1);
+      opslaanRooster();
+      renderRoosterLijst();
+    });
+
+    li.appendChild(btnVerwijder);
+    roosterLijst.appendChild(li);
+  });
+}
+
+// Open formulier dialog
+btnToevoegen.addEventListener('click', () => {
+  dialog.classList.remove('hidden');
+  form.reset();
+  document.getElementById('rooster-datum').focus();
 });
 
-// --- Kalender rendering ---
-function renderKalender() {
-  const kalenderEl = document.getElementById('kalender');
-  kalenderEl.innerHTML = '';
+// Annuleer formulier
+btnCancel.addEventListener('click', () => {
+  dialog.classList.add('hidden');
+});
 
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+// Formulier opslaan
+form.addEventListener('submit', e => {
+  e.preventDefault();
 
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const daysInMonth = lastDay.getDate();
+  const datum = document.getElementById('rooster-datum').value;
+  const start = document.getElementById('rooster-start').value;
+  const eind = document.getElementById('rooster-eind').value;
+  const nachtdienst = document.getElementById('rooster-nachtdienst').checked;
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = formatDate(new Date(year, month, d));
-    const dagEl = document.createElement('div');
-    dagEl.className = 'dag';
-    dagEl.textContent = d;
+  if (!datum || !start || !eind) {
+    alert('Vul datum, start- en eindtijd in.');
+    return;
+  }
+  if (eind <= start) {
+    alert('Eindtijd moet later zijn dan starttijd.');
+    return;
+  }
 
-    if (dateStr === formatDate(now)) dagEl.classList.add('vandaag');
+  rooster.push({ datum, start, eind, nachtdienst });
+  opslaanRooster();
+  renderRoosterLijst();
+  dialog.classList.add('hidden');
+});
 
-    // Is deze dag geselecteerd in rooster?
-    if (rooster.find(wd => wd.datum === dateStr)) {
-      dagEl.classList.add('geselecteerd');
-    }
-
-    dag
+// Init pagina
+document.addEventListener('DOMContentLoaded', () => {
+  renderRoosterLijst();
+});
