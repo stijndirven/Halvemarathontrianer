@@ -102,7 +102,6 @@ function planTrainingen() {
 
 // --- Trainingsschema tonen ---
 function renderTrainingsschema() {
-  console.log('renderTrainingsschema is gestart');
   trainingsschemaEl.innerHTML = '';
 
   const trainingen = planTrainingen();
@@ -148,17 +147,35 @@ form.addEventListener('submit', e => {
   e.preventDefault();
 
   const datum = document.getElementById('rooster-datum').value;
-  const start = document.getElementById('rooster-start').value;
-  const eind = document.getElementById('rooster-eind').value;
-  const nachtdienst = document.getElementById('rooster-nachtdienst').checked;
+  const dienst = document.getElementById('rooster-dienst').value;
 
-  if (!datum || !start || !eind) {
-    alert('Vul datum, start- en eindtijd in.');
+  if (!datum || !dienst) {
+    alert('Vul datum en dienst in.');
     return;
   }
-  if (eind <= start) {
-    alert('Eindtijd moet later zijn dan starttijd.');
-    return;
+
+  let start, eind, nachtdienst;
+  switch(dienst) {
+    case 'dagdienst':
+      start = '08:00';
+      eind = '18:00';
+      nachtdienst = false;
+      break;
+    case 'tussendienst':
+      start = '14:30';
+      eind = '22:30';
+      nachtdienst = false;
+      break;
+    case 'avonddienst':
+      start = '16:30';
+      eind = '23:30';
+      nachtdienst = false;
+      break;
+    case 'nachtdienst':
+      start = '23:00';
+      eind = '09:00';
+      nachtdienst = true;
+      break;
   }
 
   rooster.push({ datum, start, eind, nachtdienst });
