@@ -1,46 +1,47 @@
 // logboek.js
 
-// --- Storage key ---
 const STORAGE_LOGS = 'hm_logs_v2';
 
-// --- Data laden ---
 let logs = JSON.parse(localStorage.getItem(STORAGE_LOGS)) || [];
 
-// --- DOM element ---
-const logboekEl = document.getElementById('logboek-lijst');
+const logboekLijst = document.getElementById('logboek-lijst');
 
-// --- Logboek renderen ---
 function renderLogboek() {
-  logboekEl.innerHTML = '';
+  logboekLijst.innerHTML = '';
 
-  if (logs.length === 0) {
-    const li = document.createElement('li');
-    li.textContent = 'Nog geen voltooide trainingen.';
-    li.style.fontStyle = 'italic';
-    logboekEl.appendChild(li);
+  if(logs.length === 0) {
+    const leegMsg = document.createElement('li');
+    leegMsg.textContent = 'Geen voltooide trainingen.';
+    leegMsg.style.fontStyle = 'italic';
+    logboekLijst.appendChild(leegMsg);
     return;
   }
 
-  logs.forEach((log, index) => {
+  // Sorteer logs op datum (nieuwste eerst)
+  logs.sort((a,b) => new Date(b.datum) - new Date(a.datum));
+
+  logs.forEach(log => {
     const li = document.createElement('li');
-    li.textContent = `${log.datum}: ${log.type} - ${log.afstand} (${log.doel}) voltooid op ${new Date(log.voltooidOp).toLocaleString()}`;
+    li.textContent = `${log.datum}: ${log.type} - ${log.afstand} km (${log.doel}) voltooid op ${new Date(log.voltooidOp).toLocaleString()}`;
 
     const btnVerwijder = document.createElement('button');
-    btnVerwijder.textContent = 'Verwijder';
-    btnVerwijder.style.marginLeft = '1rem';
+    btnVerwijder.textContent = '×';
+    btnVerwijder.title = 'Training verwijderen uit logboek';
+    btnVerwijder.className = 'verwijder-log';
+    btnVerwijder.dataset.datum = log.datum;
+    btnVerwijder.dataset.type = log.type;
 
     btnVerwijder.addEventListener('click', () => {
-      logs.splice(index, 1);
+      logs = logs.filter(l => !(l.datum === log.datum && l.type === log.type));
       localStorage.setItem(STORAGE_LOGS, JSON.stringify(logs));
       renderLogboek();
     });
 
     li.appendChild(btnVerwijder);
-    logboekEl.appendChild(li);
+    logboekLijst.appendChild(li);
   });
 }
 
-// --- Init pagina ---
 document.addEventListener('DOMContentLoaded', () => {
   renderLogboek();
 });
