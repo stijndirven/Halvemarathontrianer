@@ -1,0 +1,10 @@
+*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;line-height:1.3}
+body{max-width:900px;margin:10px auto;padding:12px}
+header h1{margin:0;font-size:1.4rem}
+section{border:1px solid #ddd;padding:10px;margin:10px 0;border-radius:8px}
+label{display:block;margin:6px 0}
+input[type=text],input[type=date],input[type=number],select,input{padding:6px;width:100%;max-width:360px}
+button{margin-top:8px;padding:8px 12px}
+#planList, #logList{margin-top:8px}
+.planItem{padding:6px;border-bottom:1px dashed #ccc}
+.small{font-size:0.9rem;color:#555}
