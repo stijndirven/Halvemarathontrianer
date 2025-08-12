@@ -1,4 +1,4 @@
-// --- Storage keys ---
+// --- Storage key ---
 const STORAGE_ROOSTER = 'hm_rooster_v2';
 
 // --- Data laden of initialiseren ---
@@ -11,41 +11,20 @@ const btnCancel = document.getElementById('rooster-cancel');
 const form = document.getElementById('rooster-form');
 const roosterLijst = document.getElementById('rooster-lijst');
 
-// --- Helper functies ---
+// --- Diensttijden per type ---
+const dienstTijden = {
+  dagdienst: { start: '08:00', eind: '18:00', label: 'Dagdienst (08:00 - 18:00)' },
+  tussendienst: { start: '14:30', eind: '22:30', label: 'Tussendienst (14:30 - 22:30)' },
+  avonddienst: { start: '16:30', eind: '23:30', label: 'Avonddienst (16:30 - 23:30)' },
+  nachtdienst: { start: '23:00', eind: '09:00', label: 'Nachtdienst (23:00 - 09:00)' }
+};
+
+// --- Opslaan functie ---
 function opslaanRooster() {
   localStorage.setItem(STORAGE_ROOSTER, JSON.stringify(rooster));
 }
 
-// Weeknummer bepalen (ISO weeknummer)
-function getWeekNumber(datumStr) {
-  const date = new Date(datumStr);
-  date.setHours(0,0,0,0);
-  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-  const week1 = new Date(date.getFullYear(), 0, 4);
-  return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-}
-
-// Week start- en einddatum formatteren
-function getWeekDateRange(year, weekNum) {
-  const simple = new Date(year, 0, 1 + (weekNum - 1) * 7);
-  const dayOfWeek = simple.getDay();
-  const ISOweekStart = new Date(simple);
-  if (dayOfWeek <= 4) {
-    ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
-  } else {
-    ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
-  }
-  const ISOweekEnd = new Date(ISOweekStart);
-  ISOweekEnd.setDate(ISOweekStart.getDate() + 6);
-
-  function formatDate(d) {
-    return d.toLocaleDateString('nl-NL', { day: '2-digit', month: 'short' });
-  }
-
-  return `${formatDate(ISOweekStart)} - ${formatDate(ISOweekEnd)}`;
-}
-
-// Rooster lijst per week weergeven
+// --- Roosterlijst renderen, gegroepeerd per week ---
 function renderRoosterLijst() {
   roosterLijst.innerHTML = '';
 
@@ -57,57 +36,75 @@ function renderRoosterLijst() {
     return;
   }
 
-  const weken = {};
+  // Sorteer op datum
+  rooster.sort((a, b) => a.datum.localeCompare(b.datum));
 
-  rooster.forEach(werkdag => {
-    const jaar = werkdag.datum.slice(0,4);
-    const weekNum = getWeekNumber(werkdag.datum);
+  // Groepeer per kalenderweek
+  const weeks = {};
+
+  rooster.forEach(dag => {
+    const dt = new Date(dag.datum);
+    const jaar = dt.getFullYear();
+
+    // Kalenderweek nummer (ISO 8601)
+    const weekNum = getWeekNumber(dt);
+
     const key = `${jaar}-W${weekNum}`;
-
-    if (!weken[key]) weken[key] = [];
-    weken[key].push(werkdag);
+    if (!weeks[key]) weeks[key] = [];
+    weeks[key].push(dag);
   });
 
-  const gesorteerdeWeken = Object.keys(weken).sort();
-
-  gesorteerdeWeken.forEach(weekKey => {
-    const [jaar, weekStr] = weekKey.split('-W');
-    const weekNum = Number(weekStr);
-    const weekRange = getWeekDateRange(Number(jaar), weekNum);
+  // Render per week
+  for (const week in weeks) {
+    const weekSection = document.createElement('section');
+    weekSection.className = 'week-block';
 
     const weekHeader = document.createElement('h3');
-    weekHeader.textContent = `Week ${weekNum} (${weekRange})`;
-    roosterLijst.appendChild(weekHeader);
+    weekHeader.textContent = `Week ${week.split('-W')[1]} (${week.split('-W')[0]})`;
+    weekSection.appendChild(weekHeader);
 
-    const ulWeek = document.createElement('ul');
+    const ul = document.createElement('ul');
 
-    weken[weekKey]
-      .sort((a,b) => a.datum.localeCompare(b.datum))
-      .forEach((werkdag) => {
-        const li = document.createElement('li');
-        const tekst = `${werkdag.datum} | ${werkdag.start} - ${werkdag.eind} ${werkdag.nachtdienst ? '(Nachtdienst)' : ''}`;
-        li.textContent = tekst;
+    weeks[week].forEach((werkdag, index) => {
+      const li = document.createElement('li');
 
-        const btnVerwijder = document.createElement('button');
-        btnVerwijder.textContent = '×';
-        btnVerwijder.title = 'Werkdag verwijderen';
-        btnVerwijder.className = 'verwijder-rooster';
+      const dienstInfo = dienstTijden[werkdag.dienst];
+      const tekst = `${werkdag.datum} — ${dienstInfo ? dienstInfo.label : ''}`;
+      li.textContent = tekst;
 
-        const globaleIndex = rooster.findIndex(r => r.datum === werkdag.datum && r.start === werkdag.start && r.eind === werkdag.eind && r.nachtdienst === werkdag.nachtdienst);
-        btnVerwijder.dataset.index = globaleIndex;
+      const btnVerwijder = document.createElement('button');
+      btnVerwijder.textContent = '×';
+      btnVerwijder.title = 'Werkdag verwijderen';
+      btnVerwijder.className = 'verwijder-rooster';
 
-        btnVerwijder.addEventListener('click', () => {
-          rooster.splice(globaleIndex, 1);
-          opslaanRooster();
-          renderRoosterLijst();
-        });
-
-        li.appendChild(btnVerwijder);
-        ulWeek.appendChild(li);
+      btnVerwijder.addEventListener('click', () => {
+        // Verwijder juiste dag uit rooster
+        rooster = rooster.filter(d => !(d.datum === werkdag.datum && d.dienst === werkdag.dienst));
+        opslaanRooster();
+        renderRoosterLijst();
       });
 
-    roosterLijst.appendChild(ulWeek);
-  });
+      li.appendChild(btnVerwijder);
+      ul.appendChild(li);
+    });
+
+    weekSection.appendChild(ul);
+    roosterLijst.appendChild(weekSection);
+  }
+}
+
+// --- Kalenderweek nummer berekenen (ISO 8601) ---
+function getWeekNumber(d) {
+  // Copy date so don't modify original
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  // Set to nearest Thursday: current date + 4 - current day number
+  const dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  // Get first day of year
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  // Calculate full weeks to nearest Thursday
+  const weekNum = Math.ceil(((date - yearStart) / 86400000 + 1)/7);
+  return weekNum;
 }
 
 // --- Events instellen ---
@@ -128,24 +125,20 @@ form.addEventListener('submit', e => {
   const dienst = document.getElementById('dienst-keuze').value;
 
   if (!datum || !dienst) {
-    alert('Vul datum en dienst in.');
+    alert('Vul een datum en dienst in.');
     return;
   }
 
-  // Start- en eindtijden per dienst
-  const dienstTijden = {
-    dagdienst: { start: '08:00', eind: '18:00', nachtdienst: false },
-    tussendienst: { start: '14:30', eind: '22:30', nachtdienst: false },
-    avonddienst: { start: '16:30', eind: '23:30', nachtdienst: false },
-    nachtdienst: { start: '23:00', eind: '09:00', nachtdienst: true },
-  };
+  // Check of dezelfde dag met zelfde dienst al bestaat
+  const bestaat = rooster.some(d => d.datum === datum && d.dienst === dienst);
+  if (bestaat) {
+    alert('Deze werkdag met deze dienst is al toegevoegd.');
+    return;
+  }
 
-  const { start, eind, nachtdienst } = dienstTijden[dienst];
-
-  rooster.push({ datum, start, eind, nachtdienst });
+  rooster.push({ datum, dienst });
   opslaanRooster();
   renderRoosterLijst();
-
   dialog.classList.add('hidden');
 });
 
