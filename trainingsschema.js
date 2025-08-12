@@ -74,6 +74,18 @@ function isVoltooid(datum, type) {
   return logs.some(log => log.datum === datum && log.type === type);
 }
 
+// Check of training overgeslagen is (in logs)
+function isOvergeslagen(datum, type) {
+  return logs.some(log => log.datum === datum && log.type === type && log.overgeslagen === true);
+}
+
+// Combineer status check
+function getStatus(datum, type) {
+  if(isVoltooid(datum, type)) return 'voltooid';
+  if(isOvergeslagen(datum, type)) return 'overgeslagen';
+  return 'open';
+}
+
 // Genereer adaptief schema
 function genereerSchema() {
   const dagen = getPlanningData();
@@ -84,34 +96,50 @@ function genereerSchema() {
 
   for(let i=0; i< dagen.length; i++) {
     const datum = dagen[i];
-    if (isWerkdag(datum)) continue; // geen training op werkdag
 
-    // Als laatste week, rustdag (halve marathon week)
-    if(weekIndex >= basisSchema.length) break;
-
-    const training = basisSchema[weekIndex][trainingIndex];
-    if(training.type === 'Rustdag') {
-      trainingsdagen.push({...training, datum});
+    // Laatste dag is halve marathon
+    if(i === dagen.length - 1) {
+      trainingsdagen.push({
+        type: 'Halve Marathon',
+        afstand: 21.1,
+        doel: 'Wedstrijd dag - succes!',
+        datum
+      });
       break;
     }
 
-    // Check of training al voltooid is in logs
-    if(isVoltooid(datum, training.type)) {
-      // Training al gedaan, volgende training
+    const week = basisSchema[weekIndex];
+    if (!week) break;
+    const training = week[trainingIndex];
+    if(!training) break;
+
+    const status = getStatus(datum, training.type);
+
+    // Sla training over als voltooid of overgeslagen
+    if(status === 'voltooid' || status === 'overgeslagen') {
       trainingIndex++;
-      if(trainingIndex >= basisSchema[weekIndex].length) {
+      if(trainingIndex >= week.length) {
         trainingIndex = 0;
         weekIndex++;
       }
-      continue; // sla deze dag over, planning schuift door
+      continue;
     }
 
-    // Training nog niet voltooid, plan deze
+    // Op werkdag geen lange duurloop (Duurloop ≥ 15 km)
+    if(isWerkdag(datum) && training.type === 'Duurloop' && training.afstand >= 15) {
+      trainingIndex++;
+      if(trainingIndex >= week.length) {
+        trainingIndex = 0;
+        weekIndex++;
+      }
+      continue;
+    }
+
+    // Plan training
     trainingsdagen.push({...training, datum});
 
-    // volgende training op volgende geschikte dag
     trainingIndex++;
-    if(trainingIndex >= basisSchema[weekIndex].length) {
+    if(trainingIndex >= week.length) {
       trainingIndex = 0;
       weekIndex++;
     }
@@ -135,12 +163,11 @@ function renderTrainingsschema() {
     const li = document.createElement('li');
     li.textContent = `${t.datum}: ${t.type} - ${t.afstand ? t.afstand + ' km' : ''} (${t.doel})`;
 
-    const btn = document.createElement('button');
-    btn.textContent = isVoltooid(t.datum, t.type) ? '✓ Voltooid' : 'Markeer als voltooid';
-    btn.disabled = isVoltooid(t.datum, t.type);
-    btn.style.marginLeft = '1rem';
-
-    btn.addEventListener('click', () => {
+    const btnVoltooid = document.createElement('button');
+    btnVoltooid.textContent = isVoltooid(t.datum, t.type) ? '✓ Voltooid' : 'Markeer als voltooid';
+    btnVoltooid.disabled = isVoltooid(t.datum, t.type);
+    btnVoltooid.style.marginLeft = '1rem';
+    btnVoltooid.addEventListener('click', () => {
       logs.push({
         datum: t.datum,
         type: t.type,
@@ -152,7 +179,30 @@ function renderTrainingsschema() {
       renderTrainingsschema();
     });
 
-    li.appendChild(btn);
+    const btnSkip = document.createElement('button');
+    btnSkip.textContent = isOvergeslagen(t.datum, t.type) ? '✓ Overgeslagen' : 'Sla over';
+    btnSkip.disabled = isOvergeslagen(t.datum, t.type);
+    btnSkip.style.marginLeft = '0.5rem';
+    btnSkip.addEventListener('click', () => {
+      logs.push({
+        datum: t.datum,
+        type: t.type,
+        afstand: t.afstand,
+        doel: t.doel,
+        overgeslagen: true,
+        gemarkeerdOp: new Date().toISOString()
+      });
+      localStorage.setItem(STORAGE_LOGS, JSON.stringify(logs));
+      renderTrainingsschema();
+    });
+
+    li.appendChild(btnVoltooid);
+
+    // Alleen trainingsdagen (dus niet Halve Marathon) krijgen skip knop
+    if(t.type !== 'Halve Marathon') {
+      li.appendChild(btnSkip);
+    }
+
     trainingsschemaEl.appendChild(li);
   });
 }
