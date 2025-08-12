@@ -46,7 +46,7 @@ function renderRoosterLijst() {
 
   rooster.forEach((werkdag, index) => {
     const li = document.createElement('li');
-    const tekst = `${werkdag.datum} | ${werkdag.start} - ${werkdag.eind} ${werkdag.nachtdienst ? '(Nachtdienst)' : ''}`;
+    const tekst = `${werkdag.datum} | ${werkdag.dienst} (${werkdag.start} - ${werkdag.eind})${werkdag.nachtdienst ? ' (Nachtdienst)' : ''}`;
     li.textContent = tekst;
 
     const btnVerwijder = document.createElement('button');
@@ -154,31 +154,32 @@ form.addEventListener('submit', e => {
     return;
   }
 
-  let start, eind, nachtdienst;
+  // dienst tijden vastleggen
+  let start, eind, nachtdienst = false;
   switch(dienst) {
     case 'dagdienst':
       start = '08:00';
       eind = '18:00';
-      nachtdienst = false;
       break;
     case 'tussendienst':
       start = '14:30';
       eind = '22:30';
-      nachtdienst = false;
       break;
     case 'avonddienst':
       start = '16:30';
       eind = '23:30';
-      nachtdienst = false;
       break;
     case 'nachtdienst':
       start = '23:00';
       eind = '09:00';
       nachtdienst = true;
       break;
+    default:
+      alert('Ongeldige dienst geselecteerd.');
+      return;
   }
 
-  rooster.push({ datum, start, eind, nachtdienst });
+  rooster.push({ datum, start, eind, nachtdienst, dienst });
   opslaanRooster();
   renderRoosterLijst();
   renderTrainingsschema();
