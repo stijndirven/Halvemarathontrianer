@@ -1,214 +1,171 @@
-/* Algemeen */
+/* style.css */
+
+:root {
+  --kleur-turquoise: #40c4ff;
+  --kleur-blauw: #0077cc;
+  --kleur-lichtgrijs: #f0f4f8;
+  --kleur-donkergrijs: #333;
+  --kleur-wit: #fff;
+  --radius: 6px;
+  --transition: 0.3s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--kleur-donkergrijs);
+  background-color: var(--kleur-lichtgrijs);
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background: #f5f7fa;
-  color: #022b3a;
   margin: 0;
-  padding: 0 1rem 3rem;
+  padding: 0 1rem 3rem 1rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 header {
-  background: #40c4ff;
-  color: white;
-  padding: 1rem 0;
   text-align: center;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  padding: 1.5rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--kleur-turquoise);
+  color: white;
+  border-radius: 0 0 var(--radius) var(--radius);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-h1, h2 {
-  margin: 0.5rem 0;
+h1 {
+  margin: 0;
+  font-weight: 700;
 }
 
 h2 {
-  border-bottom: 2px solid #40c4ff;
-  padding-bottom: 0.3rem;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--kleur-blauw);
 }
 
 main {
-  max-width: 600px;
-  margin: 1rem auto 4rem;
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
 
-/* Knoppen */
-.btn {
-  font-size: 1rem;
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
-  border: none;
+button {
   cursor: pointer;
-  margin: 0.3rem 0.5rem 0.3rem 0;
-  display: inline-block;
-  user-select: none;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  transition: background-color var(--transition);
+  font-weight: 600;
 }
 
 .btn-primary {
-  background: #40c4ff;
+  background-color: var(--kleur-turquoise);
   color: white;
-  transition: background 0.3s ease;
 }
 
-.btn-primary:hover {
-  background: #0099ff;
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--kleur-blauw);
+  outline: none;
 }
 
 .btn-secondary {
-  background: #cbd5e0;
-  color: #022b3a;
+  background-color: #ccc;
+  color: var(--kleur-donkergrijs);
 }
 
-.btn-secondary:hover {
-  background: #a0aec0;
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background-color: #aaa;
+  outline: none;
 }
 
-/* Rooster sectie */
-#kalender {
-  margin: 1rem 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-}
-
-.dag {
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  text-align: center;
-  border-radius: 6px;
-  cursor: pointer;
-  background: #e0f7fa;
-  color: #006064;
-  user-select: none;
-  font-weight: 600;
-  transition: background 0.2s ease;
-}
-
-.dag.vandaag {
-  border: 2px solid #40c4ff;
-}
-
-.dag.geselecteerd {
-  background: #40c4ff;
-  color: white;
-}
-
-/* Rooster lijst */
 #rooster-lijst {
-  margin-top: 0.5rem;
   list-style: none;
-  padding: 0;
+  padding-left: 0;
+  margin-top: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: var(--radius);
 }
 
 #rooster-lijst li {
-  background: white;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-#rooster-lijst li.nachtdienst {
-  border-left: 5px solid #00796b;
+#rooster-lijst li:last-child {
+  border-bottom: none;
 }
 
-/* Trainingsschema lijst */
-#trainingsschema {
-  list-style: none;
-  padding: 0;
+.verwijder-rooster {
+  background: transparent;
+  color: var(--kleur-blauw);
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0 0.3rem;
+  font-weight: 700;
 }
 
-#trainingsschema li {
-  background: white;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+.verwijder-rooster:hover {
+  color: var(--kleur-turquoise);
 }
 
-/* Logboek sectie */
-#logboek {
-  list-style: none;
-  padding: 0;
-}
-
-#logboek li {
-  background: white;
-  margin-bottom: 0.7rem;
-  padding: 0.7rem 1rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 5px rgb(0 0 0 / 0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-.log-interval {
-  border-left: 5px solid #40c4ff;
-  padding-left: 0.5rem;
-}
-
-.log-duur {
-  border-left: 5px solid #00838f;
-  padding-left: 0.5rem;
-}
-
-#statistieken {
-  background: #40c4ff;
-  color: white;
-  padding: 0.8rem 1rem;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-}
-
-/* Dialog voor rooster invoer */
 .dialog {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 90vw;
-  max-width: 320px;
+  width: 90%;
+  max-width: 400px;
   background: white;
-  border-radius: 10px;
-  padding: 1rem 1.5rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  padding: 1.5rem 2rem;
   transform: translate(-50%, -50%);
   z-index: 1000;
 }
 
-.dialog.hidden {
-  display: none;
+.hidden {
+  display: none !important;
 }
 
-.dialog form label {
+label {
   display: block;
-  margin: 0.5rem 0;
+  margin-bottom: 0.8rem;
   font-weight: 600;
+  color: var(--kleur-blauw);
 }
 
-.dialog form input[type="date"],
-.dialog form input[type="time"] {
+input[type="date"],
+input[type="time"] {
   width: 100%;
-  padding: 0.3rem 0.4rem;
-  margin-top: 0.2rem;
+  padding: 0.35rem 0.5rem;
   font-size: 1rem;
+  border: 1px solid #bbb;
+  border-radius: var(--radius);
+  box-sizing: border-box;
+  margin-top: 0.25rem;
 }
 
-.dialog form input[type="checkbox"] {
-  width: auto;
-  margin-left: 0.5rem;
+input[type="checkbox"] {
+  transform: scale(1.2);
+  margin-left: 0.3rem;
+  vertical-align: middle;
 }
 
-.dialog form button {
-  margin-top: 1rem;
-  width: 48%;
-}
-
-/* Responsive */
 @media (min-width: 600px) {
+  body {
+    padding: 2rem;
+  }
   main {
-    padding: 0 2rem;
+    padding: 2rem 3rem;
   }
 }
