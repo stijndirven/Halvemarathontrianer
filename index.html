@@ -1,75 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>Halve Marathon Coach (Prototype)</title>
-  <base href="./">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Halve Marathon Coach v2</title>
+  <base href="./" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#40c4ff" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>Halve Marathon Coach — Prototype</h1>
-    <p>Adaptief trainingsschema voor onregelmatige roosters. Sla deze pagina op op je beginscherm.</p>
+    <h1>Halve Marathon Coach</h1>
   </header>
-
   <main>
-    <section id="settings">
-      <h2>Instellingen</h2>
-      <label>Huidige 5km tijd (min:sec) <input id="t5" placeholder="27:00"></label>
-      <label>Huidige 10km tijd (min:sec) <input id="t10" placeholder="58:00"></label>
-      <label>Doel halve marathon (u:mm) <input id="goal" placeholder="1:50"></label>
-      <button id="saveSettings">Opslaan</button>
+    <section id="rooster-section">
+      <h2>Je Werkrooster</h2>
+      <div id="kalender"></div>
+      <button id="toevoegen-rooster-dag" class="btn btn-primary">Werkdag toevoegen</button>
+      <ul id="rooster-lijst"></ul>
     </section>
 
-    <section id="availability">
-      <h2>Beschikbaarheid (vink je werkdagen/diensten aan)</h2>
-      <div id="days">
-        <label><input type="checkbox" data-day="0"> Maandag</label>
-        <label><input type="checkbox" data-day="1"> Dinsdag</label>
-        <label><input type="checkbox" data-day="2"> Woensdag</label>
-        <label><input type="checkbox" data-day="3"> Donderdag</label>
-        <label><input type="checkbox" data-day="4"> Vrijdag</label>
-        <label><input type="checkbox" data-day="5"> Zaterdag</label>
-        <label><input type="checkbox" data-day="6"> Zondag</label>
-      </div>
-      <button id="saveAvail">Bewaar beschikbaarheid</button>
+    <section id="trainingsschema-section">
+      <h2>Trainingsschema</h2>
+      <ul id="trainingsschema"></ul>
     </section>
 
-    <section id="plan">
-      <h2>Gegenereerd Schema</h2>
-      <button id="genPlan">Genereer 12‑week schema (3x/week)</button>
-      <div id="planList"></div>
-    </section>
-
-    <section id="log">
-      <h2>Log een training</h2>
-      <label>Datum <input id="logDate" type="date"></label>
-      <label>Type <select id="logType"><option value="interval">Interval</option><option value="easy">Rustig</option><option value="long">Duur</option></select></label>
-      <label>Afstand (km) <input id="logDist" type="number" step="0.01"></label>
-      <label>Tijd (mm:ss) <input id="logTime" placeholder="00:00"></label>
-      <button id="saveLog">Opslaan & pas schema aan</button>
-      <div id="logList"></div>
-    </section>
-
-    <section id="about">
-      <h2>Uitleg (kort)</h2>
-      <ul>
-        <li>3 trainingen per week: interval, rustig, lange duurloop.</li>
-        <li>Opbouw maximaal ~10% weektotaal om blessures te voorkomen.</li>
-        <li>Na elke log berekent de app of de volgende vergelijkbare training omhoog/omlaag moet.</li>
-      </ul>
+    <section id="logboek-section">
+      <h2>Logboek</h2>
+      <div id="statistieken"></div>
+      <ul id="logboek"></ul>
     </section>
   </main>
 
-  <footer>
-    <small>Prototype — niet medisch advies. Raadpleeg bij blessures een specialist.</small>
-  </footer>
+  <div id="rooster-dialog" class="dialog hidden">
+    <form id="rooster-form">
+      <label>
+        Datum: <input type="date" id="rooster-datum" required />
+      </label>
+      <label>
+        Starttijd: <input type="time" id="rooster-start" required />
+      </label>
+      <label>
+        Eindtijd: <input type="time" id="rooster-eind" required />
+      </label>
+      <label>
+        Nachtdienst? <input type="checkbox" id="rooster-nachtdienst" />
+      </label>
+      <button type="submit" class="btn btn-primary">Opslaan</button>
+      <button type="button" id="rooster-cancel" class="btn btn-secondary">Annuleren</button>
+    </form>
+  </div>
 
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
