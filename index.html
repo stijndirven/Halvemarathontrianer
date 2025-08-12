@@ -3,13 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Halve Marathon Coach v2</title>
-  <base href="./" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#40c4ff" />
+  <title>Halve Marathon Coach - Menu</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -17,47 +11,12 @@
     <h1>Halve Marathon Coach</h1>
   </header>
   <main>
-    <section id="rooster-section">
-      <h2>Je Werkrooster</h2>
-      <div id="kalender"></div>
-      <button id="toevoegen-rooster-dag" class="btn btn-primary">Werkdag toevoegen</button>
-      <ul id="rooster-lijst"></ul>
-    </section>
-
-    <!-- Hier is het trainingsschema toegevoegd -->
-    <section id="trainingsschema-section">
-      <h2>Trainingsschema</h2>
-      <ul id="trainingsschema"></ul>
-    </section>
-
-    <section id="logboek-section">
-      <h2>Logboek</h2>
-      <div id="statistieken"></div>
-      <ul id="logboek"></ul>
-    </section>
+    <h2>Menu</h2>
+    <ul>
+      <li><a href="trainingsdagen.html">Trainingsdagen plannen</a></li>
+      <li><a href="werkdagen.html">Werkdagen beheren</a></li>
+      <li><a href="logboek.html">Logboek bekijken</a></li>
+    </ul>
   </main>
-
-  <div id="rooster-dialog" class="dialog hidden">
-    <form id="rooster-form">
-        <label>
-            Datum: <input type="date" id="rooster-datum" required />
-</label>
-<label>
-  Dienst:
-  <select id="rooster-dienst" required>
-    <option value="">-- Kies dienst --</option>
-    <option value="dagdienst">Dagdienst (08:00 - 18:00)</option>
-    <option value="tussendienst">Tussendienst (14:30 - 22:30)</option>
-    <option value="avonddienst">Avonddienst (16:30 - 23:30)</option>
-    <option value="nachtdienst">Nachtdienst (23:00 - 09:00)</option>
-  </select>
-</label>
-
-      <button type="submit" class="btn btn-primary">Opslaan</button>
-      <button type="button" id="rooster-cancel" class="btn btn-secondary">Annuleren</button>
-    </form>
-  </div>
-
-  <script src="app.js"></script>
 </body>
 </html>
