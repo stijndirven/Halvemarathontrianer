@@ -3,57 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Halve Marathon Coach v2</title>
-  <base href="./" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#40c4ff" />
+  <title>Halve Marathon Coach - Werkrooster</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
     <h1>Halve Marathon Coach</h1>
+    <p>Voeg je werkdagen toe en beheer je rooster</p>
   </header>
+
   <main>
     <section id="rooster-section">
       <h2>Je Werkrooster</h2>
-      <div id="kalender"></div>
       <button id="toevoegen-rooster-dag" class="btn btn-primary">Werkdag toevoegen</button>
       <ul id="rooster-lijst"></ul>
     </section>
 
-    <section id="trainingsschema-section">
-      <h2>Trainingsschema</h2>
-      <ul id="trainingsschema"></ul>
-    </section>
-
-    <section id="logboek-section">
-      <h2>Logboek</h2>
-      <div id="statistieken"></div>
-      <ul id="logboek"></ul>
-    </section>
+    <div id="rooster-dialog" class="dialog hidden" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+      <form id="rooster-form">
+        <h3 id="dialog-title">Werkdag toevoegen</h3>
+        <label>
+          Datum: <input type="date" id="rooster-datum" required />
+        </label><br />
+        <label>
+          Starttijd: <input type="time" id="rooster-start" required />
+        </label><br />
+        <label>
+          Eindtijd: <input type="time" id="rooster-eind" required />
+        </label><br />
+        <label>
+          Nachtdienst? <input type="checkbox" id="rooster-nachtdienst" />
+        </label><br />
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+        <button type="button" id="rooster-cancel" class="btn btn-secondary">Annuleren</button>
+      </form>
+    </div>
   </main>
-
-  <div id="rooster-dialog" class="dialog hidden">
-    <form id="rooster-form">
-      <label>
-        Datum: <input type="date" id="rooster-datum" required />
-      </label>
-      <label>
-        Starttijd: <input type="time" id="rooster-start" required />
-      </label>
-      <label>
-        Eindtijd: <input type="time" id="rooster-eind" required />
-      </label>
-      <label>
-        Nachtdienst? <input type="checkbox" id="rooster-nachtdienst" />
-      </label>
-      <button type="submit" class="btn btn-primary">Opslaan</button>
-      <button type="button" id="rooster-cancel" class="btn btn-secondary">Annuleren</button>
-    </form>
-  </div>
 
   <script src="app.js"></script>
 </body>
