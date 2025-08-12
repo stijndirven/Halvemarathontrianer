@@ -5,12 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Werkdagen - Halve Marathon Coach</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .hidden { display: none; }
+    .dialog {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -30%);
+      background: white;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 100;
+    }
+    button.verwijder-rooster {
+      margin-left: 1rem;
+      color: red;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>Werkdagen beheren</h1>
     <nav>
-      <a href="index.html">Start</a> |
+      <a href="trainingsschema.html">Trainingsschema</a> |
       <a href="werkdagen.html">Werkdagen</a> |
       <a href="logboek.html">Logboek</a>
     </nav>
@@ -20,14 +39,14 @@
     <section id="rooster-section">
       <h2>Je Werkrooster</h2>
       <button id="toevoegen-rooster-dag" class="btn btn-primary">Werkdag toevoegen</button>
-      <ul id="rooster-lijst"></ul>
+      <div id="rooster-lijst"></div>
     </section>
 
     <div id="rooster-dialog" class="dialog hidden">
       <form id="rooster-form">
         <label>
           Datum: <input type="date" id="rooster-datum" required />
-        </label>
+        </label><br /><br />
         <label>
           Dienst:
           <select id="dienst-keuze" required>
@@ -37,7 +56,7 @@
             <option value="avonddienst">Avonddienst (16:30 - 23:30)</option>
             <option value="nachtdienst">Nachtdienst (23:00 - 09:00)</option>
           </select>
-        </label>
+        </label><br /><br />
         <button type="submit" class="btn btn-primary">Opslaan</button>
         <button type="button" id="rooster-cancel" class="btn btn-secondary">Annuleren</button>
       </form>
@@ -47,4 +66,3 @@
   <script src="werkdagen.js"></script>
 </body>
 </html>
-
