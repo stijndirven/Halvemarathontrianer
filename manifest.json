@@ -1,7 +1,8 @@
 {
   "name": "Halve Marathon Coach (Prototype)",
   "short_name": "Coach",
-  "start_url": "./index.html",
+  "start_url": "./index.html?homescreen=1",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2b8a3e",
