@@ -39,18 +39,20 @@
 
   <div id="rooster-dialog" class="dialog hidden">
     <form id="rooster-form">
-      <label>
-        Datum: <input type="date" id="rooster-datum" required />
-      </label>
-      <label>
-        Starttijd: <input type="time" id="rooster-start" required />
-      </label>
-      <label>
-        Eindtijd: <input type="time" id="rooster-eind" required />
-      </label>
-      <label>
-        Nachtdienst? <input type="checkbox" id="rooster-nachtdienst" />
-      </label>
+        <label>
+            Datum: <input type="date" id="rooster-datum" required />
+</label>
+<label>
+  Dienst:
+  <select id="rooster-dienst" required>
+    <option value="">-- Kies dienst --</option>
+    <option value="dagdienst">Dagdienst (08:00 - 18:00)</option>
+    <option value="tussendienst">Tussendienst (14:30 - 22:30)</option>
+    <option value="avonddienst">Avonddienst (16:30 - 23:30)</option>
+    <option value="nachtdienst">Nachtdienst (23:00 - 09:00)</option>
+  </select>
+</label>
+
       <button type="submit" class="btn btn-primary">Opslaan</button>
       <button type="button" id="rooster-cancel" class="btn btn-secondary">Annuleren</button>
     </form>
