@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Werkdagen - Halve Marathon Coach</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Werkdagen beheren</h1>
+    <nav>
+      <a href="index.html">Trainingsdagen</a> |
+      <a href="werkdagen.html">Werkdagen</a> |
+      <a href="logboek.html">Logboek</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="rooster-section">
+      <h2>Je Werkrooster</h2>
+      <button id="toevoegen-rooster-dag" class="btn btn-primary">Werkdag toevoegen</button>
+      <ul id="rooster-lijst"></ul>
+    </section>
+
+    <div id="rooster-dialog" class="dialog hidden">
+      <form id="rooster-form">
+        <label>
+          Datum: <input type="date" id="rooster-datum" required />
+        </label>
+        <label>
+          Dienst:
+          <select id="dienst-keuze" required>
+            <option value="" disabled selected>Kies dienst</option>
+            <option value="dagdienst">Dagdienst (08:00 - 18:00)</option>
+            <option value="tussendienst">Tussendienst (14:30 - 22:30)</option>
+            <option value="avonddienst">Avonddienst (16:30 - 23:30)</option>
+            <option value="nachtdienst">Nachtdienst (23:00 - 09:00)</option>
+          </select>
+        </label>
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+        <button type="button" id="rooster-cancel" class="btn btn-secondary">Annuleren</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="werkdagen.js"></script>
+</body>
+</html>
 
