@@ -86,19 +86,21 @@ function getStatus(datum, type) {
   return 'open';
 }
 
-// Genereer adaptief schema
+// Genereer adaptief schema met rustdagen
 function genereerSchema() {
   const dagen = getPlanningData();
   const trainingsdagen = [];
 
   let weekIndex = 0;
   let trainingIndex = 0;
+  let vorigeWasKort = false;
+  let rustVolgendeDag = false;
 
-  for(let i=0; i< dagen.length; i++) {
+  for (let i = 0; i < dagen.length; i++) {
     const datum = dagen[i];
 
     // Laatste dag is halve marathon
-    if(i === dagen.length - 1) {
+    if (i === dagen.length - 1) {
       trainingsdagen.push({
         type: 'Halve Marathon',
         afstand: 21.1,
@@ -108,42 +110,65 @@ function genereerSchema() {
       break;
     }
 
+    // Ingepland als rustdag → sla over
+    if (rustVolgendeDag) {
+      trainingsdagen.push({
+        type: 'Rustdag',
+        afstand: 0,
+        doel: 'Herstel',
+        datum
+      });
+      rustVolgendeDag = false;
+      vorigeWasKort = false;
+      continue;
+    }
+
     const week = basisSchema[weekIndex];
     if (!week) break;
-    const training = week[trainingIndex];
-    if(!training) break;
+    let training = week[trainingIndex];
+    if (!training) break;
 
     const status = getStatus(datum, training.type);
 
     // Sla training over als voltooid of overgeslagen
-    if(status === 'voltooid' || status === 'overgeslagen') {
+    if (status === 'voltooid' || status === 'overgeslagen') {
       trainingIndex++;
-      if(trainingIndex >= week.length) {
+      if (trainingIndex >= week.length) {
         trainingIndex = 0;
         weekIndex++;
       }
       continue;
     }
 
-    // Op werkdag geen lange duurloop (Duurloop ≥ 15 km)
-    if(isWerkdag(datum) && training.type === 'Duurloop' && training.afstand >= 15) {
-      trainingIndex++;
-      if(trainingIndex >= week.length) {
-        trainingIndex = 0;
-        weekIndex++;
-      }
-      continue;
+    // Op werkdag geen lange duurloop (≥15 km)
+    if (isWerkdag(datum) && training.type === 'Duurloop' && training.afstand >= 15) {
+      // Kies een kortere training in plaats van overslaan
+      training = { type: 'Korte training', afstand: 6, doel: 'Licht herstel vanwege werkdag' };
     }
 
-    // Plan training
-    trainingsdagen.push({...training, datum});
+    // Training plannen
+    trainingsdagen.push({ ...training, datum });
 
+    // Rustdag-regels
+    if (training.afstand > 8) {
+      rustVolgendeDag = true;
+    } else {
+      if (vorigeWasKort) {
+        rustVolgendeDag = true;
+        vorigeWasKort = false;
+      } else {
+        vorigeWasKort = true;
+      }
+    }
+
+    // Volgende training in schema
     trainingIndex++;
-    if(trainingIndex >= week.length) {
+    if (trainingIndex >= week.length) {
       trainingIndex = 0;
       weekIndex++;
     }
   }
+
   return trainingsdagen;
 }
 
