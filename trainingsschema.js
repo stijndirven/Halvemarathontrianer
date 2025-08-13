@@ -231,6 +231,20 @@ function renderTrainingsschema() {
     trainingsschemaEl.appendChild(li);
   });
 }
+// Knop om nieuw schema te maken
+function nieuwSchemaGenereren() {
+  // Optioneel: oude logs wissen zodat het schema echt helemaal nieuw is
+  // logs = [];
+  // localStorage.setItem(STORAGE_LOGS, JSON.stringify(logs));
+
+  // Gewoon opnieuw renderen met huidige rooster
+  renderTrainingsschema();
+}
+
+// Eventlistener voor de knop
+document.getElementById('btnNieuwSchema').addEventListener('click', () => {
+  nieuwSchemaGenereren();
+});
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
