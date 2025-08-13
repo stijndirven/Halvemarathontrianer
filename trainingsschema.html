@@ -1,36 +1,113 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Trainingsschema - Halve Marathon Coach</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trainingsschema</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    #trainingsschema {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    #trainingsschema li {
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    #trainingsschema li strong {
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .voltooid {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .voltooid:hover {
+      background-color: #218838;
+    }
+
+    .overslaan {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .overslaan:hover {
+      background-color: #c82333;
+    }
+
+    .nieuwe-schema {
+      background-color: #ffc107;
+      color: #333;
+    }
+
+    .nieuwe-schema:hover {
+      background-color: #e0a800;
+    }
+
+  </style>
 </head>
 <body>
   <header>
-    <h1>Trainingsschema</h1>
-    <nav>
-      <a href="index.html">Startpagina</a> |
-      <a href="werkdagen.html">Werkdagen</a> |
-      <a href="logboek.html">Logboek</a>
-    </nav>
+    <h1>Mijn Trainingsschema</h1>
   </header>
-  
-  <main>
-    <section>
-      <h2>Je trainingsschema voor de komende weken</h2>
-      <ul id="trainingsschema"></ul>
-    </section>
-  </main>
 
   <main>
-    <section>
-      <button id="btnNieuwSchema" style="margin-bottom:1rem; display:none;">
-  📅 Genereer nieuw schema
-</button>
-<ul id="trainingsschema"></ul>
-<script src="trainingsschema.js"></script>
-    </section>
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <button class="nieuwe-schema" onclick="genereerSchema(true)">🔄 Nieuw schema maken</button>
+    </div>
+    <ul id="trainingsschema"></ul>
   </main>
 
   <script src="trainingsschema.js"></script>
