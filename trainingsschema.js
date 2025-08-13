@@ -1,16 +1,10 @@
-// trainingsschema.js
-
 const STORAGE_ROOSTER = 'hm_rooster_v2';
 const STORAGE_LOGS = 'hm_logs_v2';
 
 let rooster = JSON.parse(localStorage.getItem(STORAGE_ROOSTER)) || [];
 let logs = JSON.parse(localStorage.getItem(STORAGE_LOGS)) || [];
 
-// Basis 12 weken halve marathon schema (voorbeeld)
-// Elke week heeft 3 trainingen (bijv. interval, duurloop, herstel)
-// Afstanden en intensiteit worden aangepast op basis van voortgang
 const basisSchema = [
-  // week 1 t/m 12: objecten met type, afstand(km), doel
   [{type:'Interval', afstand:5, doel:'Korte snelle stukken'},
    {type:'Duurloop', afstand:8, doel:'Rustig tempo uithoudingsvermogen'},
    {type:'Herstel', afstand:4, doel:'Lichte rustige loop'}],
@@ -47,12 +41,10 @@ const basisSchema = [
   [{type:'Rustdag', afstand:0, doel:'Voorbereiding halve marathon'}]
 ];
 
-// Helper om datumstring te maken
 function formatDate(date) {
   return date.toISOString().slice(0,10);
 }
 
-// Krijg array met alle data vanaf vandaag t/m 12 weken (84 dagen)
 function getPlanningData() {
   const startDatum = new Date();
   const data = [];
@@ -64,43 +56,39 @@ function getPlanningData() {
   return data;
 }
 
-// Check of dag een werkdag is (geen training op werkdag)
 function isWerkdag(datum) {
   return rooster.some(w => w.datum === datum);
 }
 
-// Check of training voltooid is (in logs)
 function isVoltooid(datum, type) {
   return logs.some(log => log.datum === datum && log.type === type);
 }
 
-// Check of training overgeslagen is (in logs)
 function isOvergeslagen(datum, type) {
   return logs.some(log => log.datum === datum && log.type === type && log.overgeslagen === true);
 }
 
-// Combineer status check
 function getStatus(datum, type) {
   if(isVoltooid(datum, type)) return 'voltooid';
   if(isOvergeslagen(datum, type)) return 'overgeslagen';
   return 'open';
 }
 
-// Genereer adaptief schema met rustdagen
+// 🔹 Genereer schema met rustdaglogica
 function genereerSchema() {
   const dagen = getPlanningData();
   const trainingsdagen = [];
 
   let weekIndex = 0;
   let trainingIndex = 0;
-  let vorigeWasKort = false;
-  let rustVolgendeDag = false;
+  let vorigeAfstand = 0;
+  let vorigeWasKort = false; // voor 2x kort achter elkaar
 
-  for (let i = 0; i < dagen.length; i++) {
+  for(let i=0; i< dagen.length; i++) {
     const datum = dagen[i];
 
     // Laatste dag is halve marathon
-    if (i === dagen.length - 1) {
+    if(i === dagen.length - 1) {
       trainingsdagen.push({
         type: 'Halve Marathon',
         afstand: 21.1,
@@ -110,69 +98,63 @@ function genereerSchema() {
       break;
     }
 
-    // Ingepland als rustdag → sla over
-    if (rustVolgendeDag) {
-      trainingsdagen.push({
-        type: 'Rustdag',
-        afstand: 0,
-        doel: 'Herstel',
-        datum
-      });
-      rustVolgendeDag = false;
-      vorigeWasKort = false;
-      continue;
-    }
-
     const week = basisSchema[weekIndex];
     if (!week) break;
-    let training = week[trainingIndex];
-    if (!training) break;
+    const training = week[trainingIndex];
+    if(!training) break;
 
     const status = getStatus(datum, training.type);
 
-    // Sla training over als voltooid of overgeslagen
-    if (status === 'voltooid' || status === 'overgeslagen') {
+    // Sla training over als voltooid/overgeslagen
+    if(status !== 'open') {
       trainingIndex++;
-      if (trainingIndex >= week.length) {
+      if(trainingIndex >= week.length) {
         trainingIndex = 0;
         weekIndex++;
       }
       continue;
     }
 
-    // Op werkdag geen lange duurloop (≥15 km)
-    if (isWerkdag(datum) && training.type === 'Duurloop' && training.afstand >= 15) {
-      // Kies een kortere training in plaats van overslaan
-      training = { type: 'Korte training', afstand: 6, doel: 'Licht herstel vanwege werkdag' };
-    }
-
-    // Training plannen
-    trainingsdagen.push({ ...training, datum });
-
-    // Rustdag-regels
-    if (training.afstand > 8) {
-      rustVolgendeDag = true;
-    } else {
-      if (vorigeWasKort) {
-        rustVolgendeDag = true;
-        vorigeWasKort = false;
-      } else {
-        vorigeWasKort = true;
+    // Op werkdag geen lange duurloop
+    if(isWerkdag(datum) && training.type === 'Duurloop' && training.afstand >= 15) {
+      trainingIndex++;
+      if(trainingIndex >= week.length) {
+        trainingIndex = 0;
+        weekIndex++;
       }
+      continue;
     }
 
-    // Volgende training in schema
+    // 🔹 Rustdaglogica
+    if(vorigeAfstand > 8) {
+      // Na lange training >8km rustdag
+      trainingsdagen.push({type:'Rustdag', afstand:0, doel:'Herstel', datum});
+      vorigeAfstand = 0;
+      vorigeWasKort = false;
+      continue;
+    }
+    if(vorigeWasKort && training.afstand < 8) {
+      // Na 2x kort achter elkaar rust
+      trainingsdagen.push({type:'Rustdag', afstand:0, doel:'Herstel', datum});
+      vorigeAfstand = 0;
+      vorigeWasKort = false;
+      continue;
+    }
+
+    // Plan training
+    trainingsdagen.push({...training, datum});
+    vorigeAfstand = training.afstand;
+    vorigeWasKort = training.afstand < 8;
+
     trainingIndex++;
-    if (trainingIndex >= week.length) {
+    if(trainingIndex >= week.length) {
       trainingIndex = 0;
       weekIndex++;
     }
   }
-
   return trainingsdagen;
 }
 
-// Render schema in de pagina
 function renderTrainingsschema() {
   const trainingsschemaEl = document.getElementById('trainingsschema');
   trainingsschemaEl.innerHTML = '';
@@ -180,7 +162,7 @@ function renderTrainingsschema() {
   const schema = genereerSchema();
 
   if(schema.length === 0) {
-    trainingsschemaEl.innerHTML = '<li>Geen geplande trainingen (allemaal voltooid?)</li>';
+    trainingsschemaEl.innerHTML = '<li>Geen geplande trainingen</li>';
     return;
   }
 
@@ -188,65 +170,71 @@ function renderTrainingsschema() {
     const li = document.createElement('li');
     li.textContent = `${t.datum}: ${t.type} - ${t.afstand ? t.afstand + ' km' : ''} (${t.doel})`;
 
-    const btnVoltooid = document.createElement('button');
-    btnVoltooid.textContent = isVoltooid(t.datum, t.type) ? '✓ Voltooid' : 'Markeer als voltooid';
-    btnVoltooid.disabled = isVoltooid(t.datum, t.type);
-    btnVoltooid.style.marginLeft = '1rem';
-    btnVoltooid.addEventListener('click', () => {
-      logs.push({
-        datum: t.datum,
-        type: t.type,
-        afstand: t.afstand,
-        doel: t.doel,
-        voltooidOp: new Date().toISOString()
+    if(t.type !== 'Rustdag') {
+      const btnVoltooid = document.createElement('button');
+      btnVoltooid.textContent = isVoltooid(t.datum, t.type) ? '✓ Voltooid' : 'Markeer als voltooid';
+      btnVoltooid.disabled = isVoltooid(t.datum, t.type);
+      btnVoltooid.style.marginLeft = '1rem';
+      btnVoltooid.addEventListener('click', () => {
+        logs.push({
+          datum: t.datum,
+          type: t.type,
+          afstand: t.afstand,
+          doel: t.doel,
+          voltooidOp: new Date().toISOString()
+        });
+        localStorage.setItem(STORAGE_LOGS, JSON.stringify(logs));
+        renderTrainingsschema();
       });
-      localStorage.setItem(STORAGE_LOGS, JSON.stringify(logs));
-      renderTrainingsschema();
-    });
 
-    const btnSkip = document.createElement('button');
-    btnSkip.textContent = isOvergeslagen(t.datum, t.type) ? '✓ Overgeslagen' : 'Sla over';
-    btnSkip.disabled = isOvergeslagen(t.datum, t.type);
-    btnSkip.style.marginLeft = '0.5rem';
-    btnSkip.addEventListener('click', () => {
-      logs.push({
-        datum: t.datum,
-        type: t.type,
-        afstand: t.afstand,
-        doel: t.doel,
-        overgeslagen: true,
-        gemarkeerdOp: new Date().toISOString()
+      const btnSkip = document.createElement('button');
+      btnSkip.textContent = isOvergeslagen(t.datum, t.type) ? '✓ Overgeslagen' : 'Sla over';
+      btnSkip.disabled = isOvergeslagen(t.datum, t.type);
+      btnSkip.style.marginLeft = '0.5rem';
+      btnSkip.addEventListener('click', () => {
+        logs.push({
+          datum: t.datum,
+          type: t.type,
+          afstand: t.afstand,
+          doel: t.doel,
+          overgeslagen: true,
+          gemarkeerdOp: new Date().toISOString()
+        });
+        localStorage.setItem(STORAGE_LOGS, JSON.stringify(logs));
+        renderTrainingsschema();
       });
-      localStorage.setItem(STORAGE_LOGS, JSON.stringify(logs));
-      renderTrainingsschema();
-    });
 
-    li.appendChild(btnVoltooid);
-
-    // Alleen trainingsdagen (dus niet Halve Marathon) krijgen skip knop
-    if(t.type !== 'Halve Marathon') {
+      li.appendChild(btnVoltooid);
       li.appendChild(btnSkip);
     }
 
     trainingsschemaEl.appendChild(li);
   });
 }
-// Knop om nieuw schema te maken
-function nieuwSchemaGenereren() {
-  // Optioneel: oude logs wissen zodat het schema echt helemaal nieuw is
-  // logs = [];
-  // localStorage.setItem(STORAGE_LOGS, JSON.stringify(logs));
 
-  // Gewoon opnieuw renderen met huidige rooster
-  renderTrainingsschema();
+// 🔹 Nieuw schema knop functionaliteit
+const btnNieuwSchema = document.getElementById('btnNieuwSchema');
+
+function checkNieuwSchemaNodig() {
+  const lastRoosterChange = parseInt(localStorage.getItem('hm_rooster_last_changed') || '0', 10);
+  const lastSchemaGen = parseInt(localStorage.getItem('hm_schema_last_generated') || '0', 10);
+
+  if (lastRoosterChange > lastSchemaGen) {
+    btnNieuwSchema.style.display = 'block';
+  } else {
+    btnNieuwSchema.style.display = 'none';
+  }
 }
 
-// Eventlistener voor de knop
-document.getElementById('btnNieuwSchema').addEventListener('click', () => {
-  nieuwSchemaGenereren();
-});
+function nieuwSchemaGenereren() {
+  renderTrainingsschema();
+  localStorage.setItem('hm_schema_last_generated', Date.now());
+  checkNieuwSchemaNodig();
+}
 
-// Init
+btnNieuwSchema.addEventListener('click', nieuwSchemaGenereren);
+
 document.addEventListener('DOMContentLoaded', () => {
   renderTrainingsschema();
+  checkNieuwSchemaNodig();
 });
